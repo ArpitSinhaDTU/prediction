@@ -2,6 +2,13 @@
 
 A cascaded, high-precision deep learning pipeline built with YOLOv8 to automatically detect seatbelt usage in high-resolution traffic camera feeds.
 
+## Dataset
+
+The raw traffic camera image dataset utilized for training and evaluation in this project can be found on Roboflow:
+[Seatbelt Detection Dataset](https://universe.roboflow.com/traffic-violations/seatbelt-detection-esut6)
+
+---
+
 ## Architecture
 
 This system uses a three-stage pipeline to handle variations in car models, camera angles, and small object detection (thin seatbelts):
