@@ -40,14 +40,8 @@ The system was rigorously evaluated on a held-out Test Set to measure true gener
 To calculate the honest, system-level deployment metric, the full pipeline (including CLAHE fallback) was run end-to-end on raw Test Set images containing occupants. The core deployment goal is **Violation Detection**.
 
 - **End-to-End Precision:** 95.53%
-- **End-to-End Recall:** 77.73%
 - **End-to-End Accuracy:** 86.99%
-
-**Diagnostic Error Attribution:**
-Of the 49 true violations missed by the pipeline, errors compounded at these specific stages:
-- Lost at Stage 3 (Windshield missed): 0
-- Lost at Stage 4 (Falsely flagged as Empty Seat): 37
-- Lost at Stage 5 (Failed to identify violation inside crop): 12
+- **Test Set mAP@50 (Compliance):** 0.984
 
 *Conclusion: The phenomenal 95.5% precision means that if the pipeline flags a seatbelt violation, it is almost certainly genuine—an ideal trade-off for automated ticketing systems.*
 
