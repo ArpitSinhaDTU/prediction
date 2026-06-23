@@ -65,63 +65,62 @@ if __name__ == '__main__':
         vis_img = img.copy()
             
         res3 = model3(img, verbose=False, conf=0.25)[0]
-        best_windshield = None
-        best_conf = 0
+        windshields = []
         for box in res3.boxes:
             conf = float(box.conf[0])
-            if conf > best_conf:
-                best_conf = conf
-                best_windshield = box.xyxy[0].cpu().numpy()
+            if conf >= 0.25:
+                windshields.append(box.xyxy[0].cpu().numpy())
                 
         pred_boxes = []
                 
-        if best_windshield is not None:
-            x1_w, y1_w, x2_w, y2_w = map(int, best_windshield)
-            x1_w, y1_w = max(0, x1_w), max(0, y1_w)
-            x2_w, y2_w = min(w_orig, x2_w), min(h_orig, y2_w)
-            
-            if x2_w > x1_w and y2_w > y1_w:
-                crop = img[y1_w:y2_w, x1_w:x2_w]
-                res4 = model4(crop, verbose=False)[0]
-                cls_name = model4.names[res4.probs.top1]
+        if len(windshields) > 0:
+            for windshield in windshields:
+                x1_w, y1_w, x2_w, y2_w = map(int, windshield)
+                x1_w, y1_w = max(0, x1_w), max(0, y1_w)
+                x2_w, y2_w = min(w_orig, x2_w), min(h_orig, y2_w)
                 
-                if cls_name == 'with_occupant':
-                    res5 = model5(crop, verbose=False, conf=0.01)[0]
+                if x2_w > x1_w and y2_w > y1_w:
+                    crop = img[y1_w:y2_w, x1_w:x2_w]
+                    res4 = model4(crop, verbose=False)[0]
+                    cls_name = model4.names[res4.probs.top1]
                     
-                    max_occupant_conf = 0
-                    active_boxes = res5.boxes
-                    
-                    for box in res5.boxes:
-                        cls_id = int(box.cls[0])
-                        conf = float(box.conf[0])
-                        if cls_id in [0, 1]:
-                            if conf > max_occupant_conf: max_occupant_conf = conf
-                            
-                    if max_occupant_conf < 0.25:
-                        crop_clahe = apply_clahe(crop)
-                        res5_clahe = model5(crop_clahe, verbose=False, conf=0.01)[0]
+                    if cls_name == 'with_occupant':
+                        res5 = model5(crop, verbose=False, conf=0.01)[0]
                         
-                        max_occupant_conf_clahe = 0
-                        for box in res5_clahe.boxes:
+                        max_occupant_conf = 0
+                        active_boxes = res5.boxes
+                        
+                        for box in res5.boxes:
                             cls_id = int(box.cls[0])
                             conf = float(box.conf[0])
-                            if cls_id in [0, 1] and conf > max_occupant_conf_clahe: 
-                                max_occupant_conf_clahe = conf
+                            if cls_id in [0, 1]:
+                                if conf > max_occupant_conf: max_occupant_conf = conf
                                 
-                        if max_occupant_conf_clahe > max_occupant_conf:
-                            active_boxes = res5_clahe.boxes
+                        if max_occupant_conf < 0.25:
+                            crop_clahe = apply_clahe(crop)
+                            res5_clahe = model5(crop_clahe, verbose=False, conf=0.01)[0]
                             
-                    has_belted = False
-                    has_unbelted = False
-                    
-                    for box in active_boxes:
-                        cls_id = int(box.cls[0])
-                        conf = float(box.conf[0])
-                        if conf >= 0.25: 
-                            bx1, by1, bx2, by2 = map(int, box.xyxy[0].cpu().numpy())
-                            pred_boxes.append((cls_id, conf, bx1 + x1_w, by1 + y1_w, bx2 + x1_w, by2 + y1_w))
-                            if cls_id == 1: has_belted = True
-                            if cls_id == 0: has_unbelted = True
+                            max_occupant_conf_clahe = 0
+                            for box in res5_clahe.boxes:
+                                cls_id = int(box.cls[0])
+                                conf = float(box.conf[0])
+                                if cls_id in [0, 1] and conf > max_occupant_conf_clahe: 
+                                    max_occupant_conf_clahe = conf
+                                    
+                            if max_occupant_conf_clahe > max_occupant_conf:
+                                active_boxes = res5_clahe.boxes
+                                
+                        has_belted = False
+                        has_unbelted = False
+                        
+                        for box in active_boxes:
+                            cls_id = int(box.cls[0])
+                            conf = float(box.conf[0])
+                            if conf >= 0.25: 
+                                bx1, by1, bx2, by2 = map(int, box.xyxy[0].cpu().numpy())
+                                pred_boxes.append((cls_id, conf, bx1 + x1_w, by1 + y1_w, bx2 + x1_w, by2 + y1_w))
+                                if cls_id == 1: has_belted = True
+                                if cls_id == 0: has_unbelted = True
 
             if len(pred_boxes) > 0:
                 # Decide if we want to save this image based on our quota
