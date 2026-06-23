@@ -1,11 +1,11 @@
-# Traffic Camera Seatbelt Compliance System
+# Traffic Camera Compliance System
 
-A cascaded, high-precision deep learning pipeline built with YOLOv8 to automatically detect seatbelt usage in high-resolution traffic camera feeds.
+A cascaded, high-precision deep learning pipeline built with YOLOv8 to automatically detect belt usage in high-resolution traffic camera feeds.
 
 ## Dataset
 
 The raw traffic camera image dataset utilized for training and evaluation in this project can be found on Roboflow:
-[Seatbelt Detection Dataset](https://universe.roboflow.com/traffic-violations/seatbelt-detection-esut6)
+[belt Detection Dataset](https://universe.roboflow.com/traffic-violations/seatbelt-detection-esut6)
 
 ---
 
@@ -14,7 +14,7 @@ The raw traffic camera image dataset utilized for training and evaluation in thi
 This system uses a three-stage pipeline to handle variations in car models, camera angles, and small object detection (thin seatbelts):
 1. **Stage 3 (Windshield Detection):** Localizes and extracts the windshield Region of Interest (ROI) from the full traffic camera frame.
 2. **Stage 4 (Occupancy Classification):** Filters out empty seats with a lightweight classifier trained on whole-crop regions.
-3. **Stage 5 (Seatbelt Detection):** Performs binary compliance detection (`person-seatbelt` vs `person-noseatbelt`) on occupant-bearing crops.
+3. **Stage 5 (belt Detection):** Performs binary compliance detection (`person-seatbelt` vs `person-noseatbelt`) on occupant-bearing crops.
 
 ### Advanced Features
 - **Dynamic CLAHE Fallback:** If Stage 5 detects an occupant but is uncertain about their belt state (confidence < `0.25`), the system applies Contrast Limited Adaptive Histogram Equalization (CLAHE) to the crop to reveal hidden straps in challenging lighting.
